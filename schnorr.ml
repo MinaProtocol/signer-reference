@@ -149,6 +149,37 @@ let () =
       (verify signature pubkey
          (Random_oracle_input.field_elements [|Field.of_int 222|])) )
 
+let main privkey json_path =
+  let payload =
+    match Transaction.Payload.of_yojson (Yojson.Safe.from_file json_path) with
+    | Ok x ->
+        x
+    | Error e ->
+        failwithf "Could not read transaction paylod: %s" e ()
+  in
+  let privkey =
+    match privkey with
+    | None ->
+        Scalar_field.random ()
+    | Some x ->
+        Scalar_field.of_string x
+  in
+  let message = Transaction.Payload.to_input payload in
+  let pubkey = Curve.scale Curve.one privkey in
+  let signature = sign privkey message in
+  assert (verify signature pubkey message)
+
+let () =
+  Command.basic ~summary:"Signing utility"
+    Command.Param.(
+      let open Command.Let_syntax in
+      let%map privkey =
+        flag "private-key" ~doc:"Private key as a base 10 string"
+          (optional string)
+      and json_path = anon ("FILE" %: string) in
+      fun () -> main privkey json_path)
+  |> Core.Command.run
+
 (* For signing transactions, we need to specify coda's transaction format and
    how transactions are converted into "random oracle input" structs
 
