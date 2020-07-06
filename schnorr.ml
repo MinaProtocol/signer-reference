@@ -1,4 +1,5 @@
 open Core_kernel
+
 (* 
   Define
   p = 2^254 + 4707489545178046908921067385359695873 = 28948022309329048855892746252171976963322203655955319056773317069363642105857
@@ -13,7 +14,7 @@ open Core_kernel
 
 module Field = Base_field
 
-let initial_state = 
+let initial_state =
   let prefix_to_field (s : string) =
     let bits_per_character = 8 in
     assert (bits_per_character * String.length s < Field.length_in_bits) ;
@@ -21,14 +22,14 @@ let initial_state =
   in
   let s = "CodaSignature*******" in
   assert (String.length s = 20) ;
-  Poseidon.hash_state ~init:[|Field.zero; Field.zero; Field.zero|]
-    [| prefix_to_field s |]
+  Poseidon.hash_state
+    ~init:[|Field.zero; Field.zero; Field.zero|]
+    [|prefix_to_field s|]
 
 module Curve = struct
   include Snarkette.Tweedle.Dee
 
-  let scale (p : t) (x : Scalar_field.t) =
-    scale p (Scalar_field.to_bigint x)
+  let scale (p : t) (x : Scalar_field.t) = scale p (Scalar_field.to_bigint x)
 end
 
 module Poseidon = Poseidon
@@ -81,11 +82,10 @@ module Message = struct
          and the bitstring arrays in the two "inputs" *)
       Random_oracle_input.append t
         { field_elements= [|x; y|]
-        ; bitstrings= [| Scalar_field.to_bits private_key|] }
+        ; bitstrings= [|Scalar_field.to_bits private_key|] }
     in
     Random_oracle_input.to_bits ~unpack:Field.to_bits input
-    |> Array.of_list 
-    |> Blake2.bits_to_string |> Blake2.digest_string
+    |> Array.of_list |> Blake2.bits_to_string |> Blake2.digest_string
     |> Blake2.to_raw_string |> Blake2.string_to_bits |> Array.to_list
     |> Scalar_field.project_bits
 
@@ -106,15 +106,13 @@ module Message = struct
        the resulting 160 bits as a little-endian representation of a field element.
     *)
     Poseidon.digest ~init:initial_state (Random_oracle_input.pack input)
-(* Poseidon returns an Fq element. We convert it to an Fp element by converting the Fq element to a little endian bit
+    (* Poseidon returns an Fq element. We convert it to an Fp element by converting the Fq element to a little endian bit
    string and then converting that little endian bit string to an Fp element. *)
     |> Field.to_bits
     |> Scalar_field.project_bits
 end
 
-
-let is_even (t : Field.t) =
-  not (Field.Nat.test_bit (Field.to_bigint t) 0)
+let is_even (t : Field.t) = not (Field.Nat.test_bit (Field.to_bigint t) 0)
 
 let sign (d_prime : Private_key.t) m =
   let public_key = Curve.scale Curve.one d_prime in
@@ -135,6 +133,21 @@ let verify ((r, s) : Signature.t) (pk : Public_key.t) (m : Message.t) =
       is_even ry && Field.equal rx r
   | exception _ ->
       false
+
+(* A test *)
+let () =
+  let message =
+    Random_oracle_input.field_elements
+      [|Field.of_int 1; Field.of_int 2; Field.of_int 345|]
+  in
+  let privkey = Scalar_field.random () in
+  let pubkey = Curve.scale Curve.one privkey in
+  let signature = sign privkey message in
+  assert (verify signature pubkey message) ;
+  assert (
+    not
+      (verify signature pubkey
+         (Random_oracle_input.field_elements [|Field.of_int 222|])) )
 
 (* For signing transactions, we need to specify coda's transaction format and
    how transactions are converted into "random oracle input" structs

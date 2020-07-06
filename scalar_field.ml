@@ -14,4 +14,3 @@ let project_bits bits =
   in
   let r = go (N.of_int 0) 0 bits in
   of_bigint r
-

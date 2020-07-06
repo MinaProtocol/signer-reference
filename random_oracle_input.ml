@@ -38,7 +38,9 @@ let pack_to_fields ~size_in_bits ~pack {field_elements; bitstrings} =
   in
   Array.append field_elements (Array.of_list_rev packed_bits)
 
-let pack = pack_to_fields ~size_in_bits:Base_field.length_in_bits ~pack:Base_field.project_bits
+let pack =
+  pack_to_fields ~size_in_bits:Base_field.length_in_bits
+    ~pack:Base_field.project_bits
 
 let to_bits ~unpack {field_elements; bitstrings} =
   let field_bits = Array.map ~f:unpack field_elements in
