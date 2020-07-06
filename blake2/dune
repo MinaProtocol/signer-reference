@@ -1,0 +1,8 @@
+(library
+  (name blake2)
+  (public_name blake2)
+  (preprocess (pps ppx_jane))
+  (inline_tests)
+  (libraries
+    core_kernel
+    digestif ))
