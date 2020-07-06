@@ -1,3 +1,3 @@
 #!/bin/bash
-find -name '*.ml' | grep -v _build | ocamlformat -i
+find -name '*.ml' | grep -v _build | xargs ocamlformat -i
 
