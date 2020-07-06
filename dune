@@ -1,0 +1,5 @@
+(executable
+  (package schnorr)
+  (name schnorr)
+  (public_name schnorr)
+  (libraries blake2 core_kernel snarkette) )
