@@ -174,8 +174,7 @@ let () =
     Command.Param.(
       let open Command.Let_syntax in
       let%map privkey =
-        flag "private-key" ~doc:"Private key as a base 10 string"
-          (optional string)
+        flag "privkey" ~doc:"Private key as a base 10 string" (optional string)
       and json_path = anon ("FILE" %: string) in
       fun () -> main privkey json_path)
   |> Core.Command.run
