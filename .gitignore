@@ -1,2 +1,3 @@
 **/.merlin
 _build
+params.sage.py
