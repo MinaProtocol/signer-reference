@@ -47,21 +47,27 @@ let apply_mds s =
 
 (* state is an array of length 3 *)
 let poseidon_permutation (state : Field.t array) =
-  (* This is inclusive of the endpoints *)
-  for r = 0 to full_rounds - 1 do
-    (* Add the round constants *)
-    for i = 0 to 2 do
-      state.(i) <- Field.( + ) state.(i) round_constants.(r).(i)
-    done ;
-    (* Apply the sbox *)
+  let sbox () =
     for i = 0 to 2 do
       state.(i) <- sbox state.(i)
-    done ;
-    (* Apply the MDS matrix *)
+    done
+  in
+  let ark r =
+    for i = 0 to 2 do
+      state.(i) <- Field.( + ) state.(i) round_constants.(r).(i)
+    done
+  in
+  let mds () =
     let new_state = apply_mds state in
     for i = 0 to 2 do
       state.(i) <- new_state.(i)
     done
+  in
+  ark 0 ;
+  for i = 0 to full_rounds - 1 do
+    sbox () ;
+    mds () ;
+    ark (i + 1)
   done
 
 let add_chunk state x0 x1 =
