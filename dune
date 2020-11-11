@@ -3,4 +3,4 @@
   (name schnorr)
   (preprocess (pps ppx_deriving_yojson ppx_jane))
   (public_name schnorr)
-  (libraries blake2 core snarkette) )
+  (libraries blake2 core snarkette base58 digestif) )
