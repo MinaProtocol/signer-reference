@@ -39,18 +39,8 @@ module Private_key = struct
   type t = Scalar_field.t
 end
 
-module Public_key = struct
-  (* A point on the curve *)
-  type t = Curve.t
-
-  module Compressed = struct
-    (* the x coordinate and y-parity of a curve point *)
-    type t = {x: Field.t; is_odd: bool}
-  end
-end
-
 module Signature = struct
-  type t = Field.t * Scalar_field.t
+  type t = Field.t * Scalar_field.t [@@deriving yojson]
 end
 
 module Message = struct
@@ -87,6 +77,7 @@ module Message = struct
     Random_oracle_input.to_bits ~unpack:Field.to_bits input
     |> Array.of_list |> Blake2.bits_to_string |> Blake2.digest_string
     |> Blake2.to_raw_string |> Blake2.string_to_bits |> Array.to_list
+    |> Fn.flip List.take (Scalar_field.length_in_bits - 1)
     |> Scalar_field.project_bits
 
   (* Hash the message together with the public key and [r], and use the output as the Schnorr challenge. *)
@@ -134,21 +125,6 @@ let verify ((r, s) : Signature.t) (pk : Public_key.t) (m : Message.t) =
   | exception _ ->
       false
 
-(* A test *)
-let () =
-  let message =
-    Random_oracle_input.field_elements
-      [|Field.of_int 1; Field.of_int 2; Field.of_int 345|]
-  in
-  let privkey = Scalar_field.random () in
-  let pubkey = Curve.scale Curve.one privkey in
-  let signature = sign privkey message in
-  assert (verify signature pubkey message) ;
-  assert (
-    not
-      (verify signature pubkey
-         (Random_oracle_input.field_elements [|Field.of_int 222|])) )
-
 let main privkey json_path =
   let payload =
     match Transaction.Payload.of_yojson (Yojson.Safe.from_file json_path) with
@@ -168,6 +144,62 @@ let main privkey json_path =
   let pubkey = Curve.scale Curve.one privkey in
   let signature = sign privkey message in
   assert (verify signature pubkey message)
+
+module Test = struct
+  (* A test *)
+  let () =
+    let message =
+      Random_oracle_input.field_elements
+        [|Field.of_int 1; Field.of_int 2; Field.of_int 345|]
+    in
+    let privkey = Scalar_field.random () in
+    let pubkey = Curve.scale Curve.one privkey in
+    let signature = sign privkey message in
+    assert (verify signature pubkey message) ;
+    assert (
+      not
+        (verify signature pubkey
+           (Random_oracle_input.field_elements [|Field.of_int 222|])) )
+
+  let private_key =
+    Scalar_field.of_string
+      "12582171893661899879526366534412228500822795919500703333934216608017454457854"
+
+  let transactions =
+    let module T = struct
+      type t = Transaction.Payload.t list [@@deriving yojson]
+    end in
+    {json|[{"common":{"fee":"0.000000003","fee_token":"1","fee_payer_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","nonce":"200","valid_until":"10000","memo":"E4Yq8cQXC1m9eCYL8mYtmfqfJ5cVdhZawrPQ6ahoAay1NDYfTi44K"},"body":["Payment",{"source_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","receiver_pk":"B62qnekV6LVbEttV7j3cxJmjSbxDWuXa5h3KeVEXHPGKTzthQaBufrY","token_id":"1","amount":"0.000000042"}]},{"common":{"fee":"0.000000015","fee_token":"1","fee_payer_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","nonce":"212","valid_until":"305","memo":"E4Yxub7Sz9ArM75kQ4mpHCiWiZtaoFYM9AiC8YevcfnHPNSRt31Ea"},"body":["Payment",{"source_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","receiver_pk":"B62qnekV6LVbEttV7j3cxJmjSbxDWuXa5h3KeVEXHPGKTzthQaBufrY","token_id":"1","amount":"0.000002048"}]},{"common":{"fee":"0.000002001","fee_token":"1","fee_payer_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","nonce":"3050","valid_until":"9000","memo":"E4YziQuAG1u7X6CFjm7QJCtgjXZJFU1eKbC1Bsjmkfc8a8LzL1yFa"},"body":["Payment",{"source_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","receiver_pk":"B62qnekV6LVbEttV7j3cxJmjSbxDWuXa5h3KeVEXHPGKTzthQaBufrY","token_id":"1","amount":"0.000000109"}]}]|json}
+    |> Yojson.Safe.from_string |> T.of_yojson
+    |> Result.map_error ~f:Error.of_string
+    |> Or_error.ok_exn
+
+  let expected_signatures =
+    [ ( Base_field.of_string
+          "26465527983186209303505416012999471216791929294547202544418628218684401247482"
+      , Scalar_field.of_string
+          "24314622607568634019238925194003982035713282123495098742563304525462390474675"
+      )
+    ; ( Base_field.of_string
+          "17904579124856301623430254602493845052225066133783759830933851350565024476791"
+      , Scalar_field.of_string
+          "23236310451221515151306332214866075609530591126304104292719087769412261542996"
+      )
+    ; ( Base_field.of_string
+          "3773739279495617006859274664335336703544299779357622700969076708386497770638"
+      , Scalar_field.of_string
+          "16564414243193951049308136709360383379865035843900659892396017769733949676574"
+      ) ]
+
+  let () =
+    let signatures =
+      List.map
+        ~f:(Fn.compose (sign private_key) Transaction.Payload.to_input)
+        transactions
+    in
+    List.iter2_exn signatures expected_signatures ~f:(fun x y ->
+        [%test_eq: Base_field.t * Scalar_field.t] x y )
+end
 
 let () =
   Command.basic ~summary:"Signing utility"
