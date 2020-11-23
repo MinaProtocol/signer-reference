@@ -1,7 +1,7 @@
 open Core_kernel
 
 (* A point on the curve *)
-type t = Snarkette.Tweedle.Dee.t
+type t = Snarkette.Pasta.Pallas.t
 
 module Compressed = struct
   (* the x coordinate and y-parity of a curve point *)

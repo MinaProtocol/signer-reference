@@ -1,7 +1,7 @@
 # Reference signer
 
 This is a standalone reference signer implementation for Coda's schnorr signatures. It includes implementations of the
-[tweedle curves and fields](https://github.com/daira/tweedle), the Poseidon hash function, and Schnorr signatures.
+pallas/vesta curves and fields, the Poseidon hash function, and Schnorr signatures.
 
 Here are instructions on how to use it
 

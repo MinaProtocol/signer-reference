@@ -19,7 +19,7 @@ open Core_kernel
   See params.sage for how the round constants and mds matrix are generated.
 *)
 
-module Field = Snarkette.Tweedle.Fq
+module Field = Base_field
 
 let full_rounds = 63
 
@@ -31,7 +31,7 @@ let full_rounds = 63
 (* Returns x^5 *)
 let sbox x = Field.(square (square x) * x)
 
-let params = Params.params_Tweedle_q
+let params = Params.params_Pasta_p
 
 let mds = Array.map ~f:(Array.map ~f:Field.of_string) params.mds
 

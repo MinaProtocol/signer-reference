@@ -1,9 +1,9 @@
 open Core_kernel
-include Snarkette.Tweedle.Fp
+include Snarkette.Pasta.Fq
 
 (* Pack bits into a field element, taking the result mod the size of the field. *)
 let project_bits bits =
-  let module N = Snarkette.Tweedle.Fp.Nat in
+  let module N = Nat in
   let one = N.of_int 1 in
   let rec go acc i = function
     | [] ->

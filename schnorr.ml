@@ -27,7 +27,7 @@ let initial_state =
     [|prefix_to_field s|]
 
 module Curve = struct
-  include Snarkette.Tweedle.Dee
+  include Snarkette.Pasta.Pallas
 
   let scale (p : t) (x : Scalar_field.t) = scale p (Scalar_field.to_bigint x)
 end
