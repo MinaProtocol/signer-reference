@@ -163,32 +163,32 @@ module Test = struct
 
   let private_key =
     Scalar_field.of_string
-      "12582171893661899879526366534412228500822795919500703333934216608017454457854"
+      "27605548526193316426392270696522474986296750573607217943669848328212086686934"
 
   let transactions =
     let module T = struct
       type t = Transaction.Payload.t list [@@deriving yojson]
     end in
-    {json|[{"common":{"fee":"0.000000003","fee_token":"1","fee_payer_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","nonce":"200","valid_until":"10000","memo":"E4Yq8cQXC1m9eCYL8mYtmfqfJ5cVdhZawrPQ6ahoAay1NDYfTi44K"},"body":["Payment",{"source_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","receiver_pk":"B62qnekV6LVbEttV7j3cxJmjSbxDWuXa5h3KeVEXHPGKTzthQaBufrY","token_id":"1","amount":"0.000000042"}]},{"common":{"fee":"0.000000015","fee_token":"1","fee_payer_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","nonce":"212","valid_until":"305","memo":"E4Yxub7Sz9ArM75kQ4mpHCiWiZtaoFYM9AiC8YevcfnHPNSRt31Ea"},"body":["Payment",{"source_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","receiver_pk":"B62qnekV6LVbEttV7j3cxJmjSbxDWuXa5h3KeVEXHPGKTzthQaBufrY","token_id":"1","amount":"0.000002048"}]},{"common":{"fee":"0.000002001","fee_token":"1","fee_payer_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","nonce":"3050","valid_until":"9000","memo":"E4YziQuAG1u7X6CFjm7QJCtgjXZJFU1eKbC1Bsjmkfc8a8LzL1yFa"},"body":["Payment",{"source_pk":"B62qkef7po74VEvJYcLYsdZ83FuKidgNZ8Xiaitzo8gKJXaxLwxgG7T","receiver_pk":"B62qnekV6LVbEttV7j3cxJmjSbxDWuXa5h3KeVEXHPGKTzthQaBufrY","token_id":"1","amount":"0.000000109"}]}]|json}
+    {json|[{"common":{"fee":"0.000000003","fee_token":"1","fee_payer_pk":"B62qiy32p8kAKnny8ZFwoMhYpBppM1DWVCqAPBYNcXnsAHhnfAAuXgg","nonce":"200","valid_until":"10000","memo":"E4Yq8cQXC1m9eCYL8mYtmfqfJ5cVdhZawrPQ6ahoAay1NDYfTi44K"},"body":["Payment",{"source_pk":"B62qiy32p8kAKnny8ZFwoMhYpBppM1DWVCqAPBYNcXnsAHhnfAAuXgg","receiver_pk":"B62qrcFstkpqXww1EkSGrqMCwCNho86kuqBd4FrAAUsPxNKdiPzAUsy","token_id":"1","amount":"0.000000042"}]},{"common":{"fee":"0.000000015","fee_token":"1","fee_payer_pk":"B62qiy32p8kAKnny8ZFwoMhYpBppM1DWVCqAPBYNcXnsAHhnfAAuXgg","nonce":"212","valid_until":"305","memo":"E4Yxub7Sz9ArM75kQ4mpHCiWiZtaoFYM9AiC8YevcfnHPNSRt31Ea"},"body":["Payment",{"source_pk":"B62qiy32p8kAKnny8ZFwoMhYpBppM1DWVCqAPBYNcXnsAHhnfAAuXgg","receiver_pk":"B62qrcFstkpqXww1EkSGrqMCwCNho86kuqBd4FrAAUsPxNKdiPzAUsy","token_id":"1","amount":"0.000002048"}]},{"common":{"fee":"0.000002001","fee_token":"1","fee_payer_pk":"B62qiy32p8kAKnny8ZFwoMhYpBppM1DWVCqAPBYNcXnsAHhnfAAuXgg","nonce":"3050","valid_until":"9000","memo":"E4YziQuAG1u7X6CFjm7QJCtgjXZJFU1eKbC1Bsjmkfc8a8LzL1yFa"},"body":["Payment",{"source_pk":"B62qiy32p8kAKnny8ZFwoMhYpBppM1DWVCqAPBYNcXnsAHhnfAAuXgg","receiver_pk":"B62qrcFstkpqXww1EkSGrqMCwCNho86kuqBd4FrAAUsPxNKdiPzAUsy","token_id":"1","amount":"0.000000109"}]}]|json}
     |> Yojson.Safe.from_string |> T.of_yojson
     |> Result.map_error ~f:Error.of_string
     |> Or_error.ok_exn
 
   let expected_signatures =
     [ ( Base_field.of_string
-          "23594471706911700362296900260124846163321465615491733517075877385596964860821"
+          "26393275544831950408026742662950427846842308902199169146789849923161392179806"
       , Scalar_field.of_string
-          "1992303867598714588528027892333593672309844237576875811270599493269928074569"
+          "28530962508461835801829592060779431956054746814505059654319465133050504973404"
       )
     ; ( Base_field.of_string
-          "13861845587675562796328177190053593448437157495971102685558244636648713029367"
+          "593521432121994244683117547833409360914162273585417434522359017224441105143"
       , Scalar_field.of_string
-          "24005677950069208791889316246233753026241812860676986534426976063404252263979"
+          "20819285891937730469882628744904298173407145192872307512375364425675578051125"
       )
     ; ( Base_field.of_string
-          "975270788935156173073004404281373798881777825731334755142454548972283442426"
+          "20133381751643053631951253240396162908841598318330948553766094388627431936936"
       , Scalar_field.of_string
-          "16826669113383351669623342560068187384433557704639175494568342500144503473560"
+          "3295605532151080425645089056684154219155646036147181655093319723849969773235"
       ) ]
 
   let () =
